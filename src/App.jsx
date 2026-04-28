@@ -268,7 +268,8 @@ const EqTooltip = ({ active, payload, label }) => {
 
 // ═══════════════════════ HEADER ═══════════════════════
 function Header({ onLogout }) {
-  const [live, setLive] = useState(null);
+  const [live, setLive]     = useState(null);
+  const [regime, setRegime] = useState(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -279,8 +280,15 @@ function Header({ onLogout }) {
         else setLive(false);
       } catch { setLive(false); }
     };
+    const fetchRegime = async () => {
+      try {
+        const r = await apiFetch('/api/market/regime');
+        if (r.ok) setRegime(await r.json());
+      } catch {}
+    };
     check();
-    const iv = setInterval(check, 30000);
+    fetchRegime();
+    const iv = setInterval(() => { check(); fetchRegime(); }, 60000);
     return () => clearInterval(iv);
   }, []);
 
@@ -303,13 +311,20 @@ function Header({ onLogout }) {
 
       {!isMobile && (
         <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-          {[{l:'NIFTY 50',v:'24,187',c:'▲ 0.82%',cl:C.up},{l:'BANK NIFTY',v:'52,340',c:'▲ 1.14%',cl:C.up},{l:'VIX',v:'12.34',c:'▼ 2.1%',cl:C.dn}].map((x,i)=>(
-            <div key={i} style={{ display:'flex', alignItems:'center', gap:6 }}>
-              <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>{x.l}</span>
-              <span style={{ fontFamily:C.mo, fontSize:11, color:C.tx, fontWeight:500 }}>{x.v}</span>
-              <span style={{ fontFamily:C.mo, fontSize:10, color:x.cl }}>{x.c}</span>
-            </div>
-          ))}
+          {regime
+            ? (
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>NIFTY 50</span>
+                <span style={{ fontFamily:C.mo, fontSize:11, color:C.tx, fontWeight:500 }}>
+                  ₹{Number(regime.nifty_close).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}
+                </span>
+                <span style={{ fontFamily:C.mo, fontSize:10, color: regime.nifty_change >= 0 ? C.up : C.dn }}>
+                  {regime.nifty_change >= 0 ? '▲' : '▼'}{Math.abs(regime.nifty_change).toFixed(2)}%
+                </span>
+              </div>
+            )
+            : <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>Loading...</span>
+          }
         </div>
       )}
 
@@ -376,26 +391,80 @@ function Sidebar({ scans, activeId, onSelect, onNew, tab, setTab }) {
 // ═══════════════════════ DASHBOARD ═══════════════════════
 function Dashboard({ scans, onSelect, onNew, setTab }) {
   const total = scans.reduce((a, s) => a + s.cnt, 0);
+  const [indices, setIndices]   = useState(null);
+  const [signals, setSignals]   = useState(null);
+  const [regime,  setRegime]    = useState(null);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        // Market regime (NIFTY trend)
+        const rr = await apiFetch('/api/market/regime');
+        if (rr.ok) setRegime(await rr.json());
+      } catch {}
+
+      try {
+        // Run the first saved scan to populate signals, or a default quick scan
+        const body = scans.length > 0
+          ? { universe: scans[0].uni, conditions: scans[0].conds }
+          : { universe: 'NIFTY 50', conditions: [
+              { ind:'rsi14', op:'gt', vt:'num', val:'55', lg:'AND' },
+              { ind:'close', op:'gt', vt:'ind', val:'', vi:'ema20', lg:'AND' },
+            ]};
+        const sr = await apiFetch('/api/scan/run', { method:'POST', body: JSON.stringify(body) });
+        if (sr.ok) { const d = await sr.json(); setSignals(d.results || []); }
+      } catch {}
+
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const fmt = (v, dec=2) => v == null ? '—' : Number(v).toFixed(dec);
+  const fmtP = v => v == null ? '—' : `₹${Number(v).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+  const regimeColor = regime?.regime?.includes('BULL') ? C.up : regime?.regime?.includes('BEAR') ? C.dn : C.wa;
+
   return (
     <div style={{ padding:24, maxWidth:1100 }}>
       {/* Stat Cards */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
+      <div className="stat-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
         {[
-          { l:'Total Signals Today', v:total, cl:C.acc },
-          { l:'Active Scanners', v:scans.length, cl:C.pu },
-          { l:'NIFTY RS (5d)', v:'+1.24%', cl:C.up },
-          { l:'Market Regime', v:'TRENDING ↑', cl:C.up },
+          { l:'Total Signals Today', v: loading ? '...' : (signals?.length ?? total), cl:C.acc },
+          { l:'Active Scanners',     v: scans.length, cl:C.pu },
+          { l:'NIFTY Close',         v: regime ? fmtP(regime.nifty_close) : '...', cl:C.tx },
+          { l:'Market Regime',       v: regime?.regime ?? '...', cl: regimeColor },
         ].map((s, i) => (
           <div key={i} style={{ background:C.sf, border:'1px solid #21262D', borderRadius:8, padding:'16px 18px' }}>
             <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu, letterSpacing:1, textTransform:'uppercase', marginBottom:8 }}>{s.l}</div>
-            <div style={{ fontFamily:C.mo, fontSize:26, fontWeight:600, color:s.cl }}>{s.v}</div>
+            <div style={{ fontFamily:C.mo, fontSize:22, fontWeight:600, color:s.cl, wordBreak:'break-all' }}>{s.v}</div>
           </div>
         ))}
       </div>
 
+      {/* Regime detail bar */}
+      {regime && (
+        <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:8, padding:'10px 18px', marginBottom:24, display:'flex', gap:24, flexWrap:'wrap' }}>
+          {[
+            { l:'NIFTY', v: fmtP(regime.nifty_close), c: regime.nifty_change >= 0 ? C.up : C.dn, ch: `${regime.nifty_change >= 0 ? '▲' : '▼'}${Math.abs(regime.nifty_change)}%` },
+            { l:'EMA 20', v: fmtP(regime.ema20), c: C.mu },
+            { l:'EMA 50', v: fmtP(regime.ema50), c: C.mu },
+            { l:'ADX(14)', v: fmt(regime.adx, 1), c: regime.adx > 25 ? C.acc : C.mu },
+          ].map((x, i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>{x.l}</span>
+              <span style={{ fontFamily:C.mo, fontSize:12, fontWeight:600, color:x.c }}>{x.v}</span>
+              {x.ch && <span style={{ fontFamily:C.mo, fontSize:10, color:x.c }}>{x.ch}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Scan Cards */}
       <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu, letterSpacing:1.5, textTransform:'uppercase', marginBottom:14 }}>Active Scanners</div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:14, marginBottom:28 }}>
+      <div className="scan-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:14, marginBottom:28 }}>
         {scans.map(sc => (
           <div key={sc.id} className="card" onClick={() => { onSelect(sc); setTab('scanner'); }}
             style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:18, cursor:'pointer' }}>
@@ -425,40 +494,74 @@ function Dashboard({ scans, onSelect, onNew, setTab }) {
         </div>
       </div>
 
-      {/* Signals Table */}
-      <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu, letterSpacing:1.5, textTransform:'uppercase', marginBottom:14 }}>Top Signals Today</div>
-      <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, overflow:'hidden' }}>
-        <table style={{ width:'100%', borderCollapse:'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom:'1px solid #21262D' }}>
-              {['Symbol','Price','Chg %','RSI','ADX','Vol ×','RS/N','BB BW','Setup',''].map(h => (
-                <th key={h} style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:8, color:C.mu, textAlign:'left', fontWeight:400, letterSpacing:1 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {STOCKS.map((r, i) => (
-              <tr key={i} className="hov" style={{ borderBottom:'1px solid #21262D50' }}>
-                <td style={{ padding:'9px 14px' }}>
-                  <div style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>{r.s}</div>
-                  <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu }}>{r.sec}</div>
-                </td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{r.p.toLocaleString('en-IN')}</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.c>=0?C.up:C.dn }}>{r.c>=0?'▲':'▼'}{Math.abs(r.c)}%</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.rsi>70?C.wa:C.tx }}>{r.rsi.toFixed(1)}</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.adx>30?C.acc:C.tx }}>{r.adx.toFixed(1)}</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.vr>2?C.acc:C.tx }}>{r.vr.toFixed(2)}×</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.rs>1.1?C.up:r.rs>1?C.acc:C.mu }}>{r.rs.toFixed(3)}</td>
-                <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:r.bw<0.06?C.wa:C.mu }}>{r.bw.toFixed(3)}</td>
-                <td style={{ padding:'9px 14px' }}><Chip label={r.setup} color={r.setup==='Breakout'?C.acc:r.setup==='Momentum'?C.pu:C.mu} /></td>
-                <td style={{ padding:'9px 14px' }}>
-                  <button className="btn" style={{ padding:'3px 10px', background:`${C.acc}12`, border:`1px solid ${C.acc}25`, borderRadius:4, cursor:'pointer', fontFamily:C.mo, fontSize:8, color:C.acc }}>TRADE</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Live Signals Table */}
+      <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu, letterSpacing:1.5, textTransform:'uppercase', marginBottom:14 }}>
+        {loading ? 'Loading live signals...' : `Live Signals — ${signals?.length ?? 0} stocks`}
       </div>
+
+      {loading && (
+        <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:28, textAlign:'center' }}>
+          <div style={{ fontFamily:C.mo, fontSize:11, color:C.acc, marginBottom:6 }}>◌ Fetching live NSE data...</div>
+          <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>Running first scan against {scans[0]?.uni || 'NIFTY 50'}</div>
+        </div>
+      )}
+
+      {!loading && signals && signals.length > 0 && (
+        <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, overflow:'auto' }}>
+          <table className="results-table" style={{ width:'100%', borderCollapse:'collapse', minWidth:680 }}>
+            <thead>
+              <tr style={{ borderBottom:'1px solid #21262D' }}>
+                {['Symbol','Price','Chg %','RSI','ADX','Vol ×','RS/N','BB BW','Setup'].map(h => (
+                  <th key={h} style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:8, color:C.mu, textAlign:'left', fontWeight:400, letterSpacing:1, whiteSpace:'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {signals.map((r, i) => {
+                const sym   = r.symbol   ?? r.s   ?? '—';
+                const sec   = r.sector   ?? r.sec  ?? '—';
+                const price = r.price    ?? r.p    ?? 0;
+                const chg   = r.change   ?? r.c    ?? 0;
+                const rsi   = r.rsi14    ?? r.rsi  ?? 0;
+                const adx   = r.adx14    ?? r.adx  ?? 0;
+                const vr    = r.vol_ratio ?? r.vr  ?? 0;
+                const rs    = r.rs_nifty ?? r.rs   ?? 0;
+                const bw    = r.bb_bw    ?? r.bw   ?? 0;
+                const setup = r.setup    ?? 'Signal';
+                return (
+                  <tr key={i} className="hov" style={{ borderBottom:'1px solid #21262D50' }}>
+                    <td style={{ padding:'9px 14px' }}>
+                      <div style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>{sym}</div>
+                      <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu }}>{sec}</div>
+                    </td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:C.tx, whiteSpace:'nowrap' }}>
+                      ₹{Number(price).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}
+                    </td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:chg>=0?C.up:C.dn, whiteSpace:'nowrap' }}>
+                      {chg>=0?'▲':'▼'}{Math.abs(Number(chg)).toFixed(2)}%
+                    </td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:rsi>70?C.wa:C.tx }}>{Number(rsi).toFixed(1)}</td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:adx>30?C.acc:C.tx }}>{Number(adx).toFixed(1)}</td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:vr>2?C.acc:C.tx }}>{Number(vr).toFixed(2)}×</td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:rs>1.1?C.up:rs>1?C.acc:C.mu }}>{rs ? Number(rs).toFixed(3) : '—'}</td>
+                    <td style={{ padding:'9px 14px', fontFamily:C.mo, fontSize:11, color:bw>0&&bw<0.06?C.wa:C.mu }}>{bw ? Number(bw).toFixed(3) : '—'}</td>
+                    <td style={{ padding:'9px 14px' }}>
+                      <Chip label={setup} color={setup==='Breakout'?C.acc:setup==='Momentum'?C.pu:setup==='RS Leader'?C.up:C.mu} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!loading && signals && signals.length === 0 && (
+        <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:28, textAlign:'center' }}>
+          <div style={{ fontFamily:C.mo, fontSize:11, color:C.mu }}>No signals matched current conditions.</div>
+          <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu, marginTop:6 }}>Try running a scan manually in the Scanner Builder.</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -948,11 +1051,6 @@ function BacktestView({ scans }) {
 // ═══════════════════════ LOGIN GATE ═══════════════════════
 // Add / remove users here. Passwords are hashed in prod via backend.
 // For now: simple client-side check — good enough for private tools.
-const USERS = {
-  "arnav":  "quantedge2024",   // change these
-  "guest":  "nse@readonly",
-};
-
 const LOGIN_CSS = `
 .login-input { width:100%; padding:11px 14px; background:#0D1117; border:1px solid #21262D;
   border-radius:7px; color:#E6EDF3; font-family:'JetBrains Mono',monospace; font-size:13px;
@@ -970,19 +1068,17 @@ const LOGIN_CSS = `
 `;
 
 function LoginGate({ onLogin }) {
-  const [user, setUser]   = useState('');
   const [pass, setPass]   = useState('');
   const [err,  setErr]    = useState('');
   const [shake, setShake] = useState(false);
   const [show, setShow]   = useState(false);
 
   const attempt = () => {
-    const u = user.trim().toLowerCase();
-    if (USERS[u] && USERS[u] === pass) {
-      sessionStorage.setItem('qe_auth', u);
-      onLogin(u);
+    if (PASSWORDS.includes(pass.trim())) {
+      sessionStorage.setItem('qe_auth', '1');
+      onLogin();
     } else {
-      setErr('Invalid username or password');
+      setErr('Incorrect password. Try again.');
       setShake(true);
       setTimeout(() => setShake(false), 400);
     }
@@ -1012,18 +1108,12 @@ function LoginGate({ onLogin }) {
           <div style={{ fontSize:15, fontWeight:700, color:'#E6EDF3', marginBottom:4 }}>Sign In</div>
           <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#7D8590', marginBottom:24 }}>Private access only</div>
 
-          <div style={{ marginBottom:14 }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#7D8590', letterSpacing:1, marginBottom:7 }}>USERNAME</div>
-            <input className="login-input" value={user} onChange={e => { setUser(e.target.value); setErr(''); }}
-              onKeyDown={onKey} placeholder="your username" autoComplete="username" />
-          </div>
-
           <div style={{ marginBottom:20 }}>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#7D8590', letterSpacing:1, marginBottom:7 }}>PASSWORD</div>
             <div style={{ position:'relative' }}>
               <input className="login-input" type={show?'text':'password'} value={pass}
                 onChange={e => { setPass(e.target.value); setErr(''); }}
-                onKeyDown={onKey} placeholder="••••••••" autoComplete="current-password"
+                onKeyDown={onKey} placeholder="Enter password" autoFocus autoComplete="current-password"
                 style={{ paddingRight:44 }} />
               <button onClick={() => setShow(s => !s)}
                 style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#7D8590' }}>
