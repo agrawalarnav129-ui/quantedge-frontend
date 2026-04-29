@@ -1227,7 +1227,7 @@ function SectorHeatmap() {
             </table>
           </div>
           <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu, marginTop:12, textAlign:'right' }}>
-            RS > 100 = outperforming NIFTY · RS < 100 = underperforming · Updated: {data.timestamp?.slice(0,16).replace('T',' ')}
+            {'RS > 100 = outperforming NIFTY · RS < 100 = underperforming · Updated: '}{data.timestamp?.slice(0,16).replace('T',' ')}
           </div>
         </>
       )}
