@@ -1088,45 +1088,6 @@ function BacktestView({ scans }) {
   );
 }
 
-  const Inp = ({ val, setter, type='number', w='100%' }) => (
-    <input type={type} value={val} onChange={e => setter(e.target.value)}
-      style={{ ...inpSt, width:w, fontFamily:C.mo, fontSize:12 }} />
-  );
-
-  return (
-    <div style={{ padding:24, maxWidth:1100 }}>
-      <div style={{ marginBottom:22 }}>
-        <h1 style={{ fontFamily:C.fn, fontSize:20, fontWeight:800, color:C.tx }}>Strategy Backtester</h1>
-        <p style={{ fontFamily:C.mo, fontSize:10, color:C.mu, marginTop:4 }}>Simulate any saved scanner on historical NSE data</p>
-      </div>
-
-      {/* Config */}
-      <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:20, marginBottom:20 }}>
-        <Lbl>Configuration</Lbl>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginTop:10 }}>
-          <div>
-            <Lbl>Scanner to Test</Lbl>
-            <select value={scanId} onChange={e => setScanId(Number(e.target.value))} style={{ ...inpSt, cursor:'pointer', fontFamily:C.fn, fontSize:13 }}>
-              {scans.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-          <div><Lbl>From Date</Lbl><Inp val={from} setter={setFrom} type="date" /></div>
-          <div><Lbl>To Date</Lbl><Inp val={to} setter={setTo} type="date" /></div>
-          <div>
-            <Lbl>Exit Rule</Lbl>
-            <select value={exitRule} onChange={e => setExitRule(e.target.value)} style={{ ...inpSt, cursor:'pointer', fontFamily:C.fn, fontSize:13 }}>
-              {EXIT_RULES.map(r => <option key={r}>{r}</option>)}
-            </select>
-          </div>
-          <div><Lbl>Stop Loss (%)</Lbl><Inp val={sl} setter={setSl} /></div>
-          <div><Lbl>Min R:R Required</Lbl><Inp val={rrMin} setter={setRrMin} /></div>
-        </div>
-        <div style={{ marginTop:18, display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
-          <button onClick={runBT} disabled={running} className="btn"
-            style={{ padding:'9px 28px', background:running?`${C.acc}25`:C.acc, border:'none', borderRadius:6, cursor:'pointer', fontFamily:C.fn, fontSize:13, fontWeight:800, color:running?C.acc:'#000' }}>
-            {running ? '◌ Running Backtest...' : '▶ Run Backtest'}
-          </button>
-
 // ═══════════════════════ SECTOR HEATMAP ═══════════════════════
 function SectorHeatmap() {
   const [data,    setData]    = useState(null);
