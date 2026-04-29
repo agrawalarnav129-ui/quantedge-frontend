@@ -220,44 +220,6 @@ const INIT_SCANS = [
   },
 ];
 
-// Deterministic equity curve
-const EQ_D = [2.1,-1.3,3.4,-0.8,1.9,2.7,-1.1,3.8,1.5,-0.5,2.3,4.1,-0.9,1.8,2.6,-1.4,3.2,0.8,2.5,-0.7,1.6,3.9,-0.6,2.8,1.4,-1.0,3.6,0.9,2.2,-0.8,4.3,-1.2,2.0,3.1,-0.4,1.7,2.9,-0.9,3.5,1.3,-0.6,2.4,1.9,3.0,-0.8,2.6,1.5,-0.5,3.8,2.1,-1.1,3.4,1.8,-0.7,2.5,3.2,-0.9,1.6,2.8,4.0];
-const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const EQUITY = (() => {
-  let v = 100000;
-  return EQ_D.map((r, i) => {
-    v = Math.round(v * (1 + r / 100));
-    const d = new Date(2025, 0, 1 + i * 5);
-    return { date:`${d.getDate()} ${MO[d.getMonth()]}`, value: v };
-  });
-})();
-
-const TRADES = [
-  {dt:'03 Jan',sym:'DIXON',entry:13200,exit:14820,pnl:12.3,rr:2.8,days:8,res:'WIN'},
-  {dt:'07 Jan',sym:'ASTRAL',entry:2050,exit:1994,pnl:-2.7,rr:0.6,days:3,res:'LOSS'},
-  {dt:'12 Jan',sym:'POLYCAB',entry:5420,exit:5892,pnl:8.7,rr:2.1,days:6,res:'WIN'},
-  {dt:'15 Jan',sym:'TITAN',entry:3180,exit:3421,pnl:7.6,rr:1.9,days:5,res:'WIN'},
-  {dt:'18 Jan',sym:'ICICIBANK',entry:1210,exit:1172,pnl:-3.1,rr:0.8,days:2,res:'LOSS'},
-  {dt:'22 Jan',sym:'PERSISTENT',entry:5180,exit:5641,pnl:8.9,rr:2.3,days:7,res:'WIN'},
-  {dt:'28 Jan',sym:'TATAELXSI',entry:6820,exit:7234,pnl:6.1,rr:1.7,days:4,res:'WIN'},
-  {dt:'03 Feb',sym:'RELIANCE',entry:2680,exit:2592,pnl:-3.3,rr:0.7,days:3,res:'LOSS'},
-  {dt:'08 Feb',sym:'BAJFINANCE',entry:6890,exit:7234,pnl:5.0,rr:1.4,days:5,res:'WIN'},
-  {dt:'14 Feb',sym:'CAMS',entry:3620,exit:3892,pnl:7.5,rr:2.0,days:6,res:'WIN'},
-  {dt:'19 Feb',sym:'DIXON',entry:14100,exit:14980,pnl:6.2,rr:1.8,days:4,res:'WIN'},
-  {dt:'25 Feb',sym:'HDFCBANK',entry:1590,exit:1538,pnl:-3.3,rr:0.7,days:2,res:'LOSS'},
-  {dt:'03 Mar',sym:'MARUTI',entry:11800,exit:12456,pnl:5.6,rr:1.6,days:5,res:'WIN'},
-  {dt:'09 Mar',sym:'ASTRAL',entry:2100,exit:2380,pnl:13.3,rr:3.2,days:9,res:'WIN'},
-];
-const WINS = TRADES.filter(t => t.res==='WIN');
-const LOSSES = TRADES.filter(t => t.res==='LOSS');
-const FINAL_VAL = EQUITY[EQUITY.length - 1].value;
-const STATS = {
-  winRate: ((WINS.length / TRADES.length) * 100).toFixed(1),
-  avgRR: (TRADES.reduce((a,t) => a + t.rr, 0) / TRADES.length).toFixed(2),
-  expectancy: (TRADES.reduce((a,t) => a + (t.res==='WIN' ? t.pnl : -Math.abs(t.pnl)), 0) / TRADES.length).toFixed(1),
-  maxDD: '-8.4', sharpe: '1.87',
-  wins: WINS.length, losses: LOSSES.length, total: TRADES.length,
-};
 
 // ═══════════════════════ CONDITION ID COUNTER ═══════════════════════
 let _id = 500;
@@ -1159,107 +1121,11 @@ function BacktestView({ scans }) {
           <div><Lbl>Stop Loss (%)</Lbl><Inp val={sl} setter={setSl} /></div>
           <div><Lbl>Min R:R Required</Lbl><Inp val={rrMin} setter={setRrMin} /></div>
         </div>
-        <div style={{ marginTop:18, display:'flex', alignItems:'center', gap:14 }}>
+        <div style={{ marginTop:18, display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
           <button onClick={runBT} disabled={running} className="btn"
             style={{ padding:'9px 28px', background:running?`${C.acc}25`:C.acc, border:'none', borderRadius:6, cursor:'pointer', fontFamily:C.fn, fontSize:13, fontWeight:800, color:running?C.acc:'#000' }}>
             {running ? '◌ Running Backtest...' : '▶ Run Backtest'}
           </button>
-          {ran && <span style={{ fontFamily:C.mo, fontSize:10, color:C.up }}>✓ Complete — {TRADES.length} trades analyzed</span>}
-        </div>
-      </div>
-
-      {ran && (
-        <>
-          {/* Performance Stats */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:12, marginBottom:20 }}>
-            {[
-              { l:'Win Rate', v:`${STATS.winRate}%`, cl:C.up },
-              { l:'Avg R:R', v:STATS.avgRR, cl:C.acc },
-              { l:'Expectancy', v:`${STATS.expectancy}%`, cl:C.acc },
-              { l:'Max Drawdown', v:`${STATS.maxDD}%`, cl:C.dn },
-              { l:'Sharpe Ratio', v:STATS.sharpe, cl:C.pu },
-              { l:'Total Trades', v:STATS.total, cl:C.tx },
-            ].map((s, i) => (
-              <div key={i} style={{ background:C.sf, border:'1px solid #21262D', borderRadius:8, padding:'12px 14px' }}>
-                <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu, letterSpacing:1, textTransform:'uppercase', marginBottom:6 }}>{s.l}</div>
-                <div style={{ fontFamily:C.mo, fontSize:22, fontWeight:600, color:s.cl }}>{s.v}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Equity Curve */}
-          <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:20, marginBottom:20 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <span style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>Equity Curve</span>
-              <div style={{ display:'flex', gap:20 }}>
-                <span style={{ fontFamily:C.mo, fontSize:10, color:C.mu }}>Capital: <span style={{ color:C.tx }}>₹1,00,000</span></span>
-                <span style={{ fontFamily:C.mo, fontSize:10, color:C.mu }}>Final: <span style={{ color:C.up }}>₹{FINAL_VAL.toLocaleString('en-IN')}</span></span>
-                <span style={{ fontFamily:C.mo, fontSize:10, color:C.mu }}>Return: <span style={{ color:C.up }}>+{((FINAL_VAL-100000)/100000*100).toFixed(1)}%</span></span>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={EQUITY} margin={{ top:5, right:5, bottom:0, left:10 }}>
-                <defs>
-                  <linearGradient id="eq_grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={C.acc} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={C.acc} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#21262D" />
-                <XAxis dataKey="date" tick={{ fontFamily:C.mo, fontSize:8, fill:C.mu }} tickLine={false} axisLine={false} interval={9} />
-                <YAxis tick={{ fontFamily:C.mo, fontSize:8, fill:C.mu }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
-                <Tooltip content={<EqTooltip />} />
-                <ReferenceLine y={100000} stroke="#21262D" strokeDasharray="4 4" />
-                <Area type="monotone" dataKey="value" stroke={C.acc} strokeWidth={2} fill="url(#eq_grad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Trade Log */}
-          <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, overflow:'hidden' }}>
-            <div style={{ padding:'14px 18px', borderBottom:'1px solid #21262D', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <span style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>Trade Log</span>
-                <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>{STATS.wins}W / {STATS.losses}L</span>
-              </div>
-              <div style={{ display:'flex', gap:6 }}>
-                {['ALL','WIN','LOSS'].map(f => (
-                  <button key={f} onClick={() => setFilter(f)} className="btn"
-                    style={{ padding:'3px 10px', background:filter===f?`${f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc}18`:'transparent', border:`1px solid ${filter===f?f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc:'#21262D'}`, borderRadius:4, cursor:'pointer', fontFamily:C.mo, fontSize:9, color:filter===f?f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc:C.mu }}>
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom:'1px solid #21262D' }}>
-                  {['Date','Symbol','Entry','Exit','P&L %','R:R','Days Held','Result'].map(h => (
-                    <th key={h} style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:8, color:C.mu, textAlign:'left', fontWeight:400, letterSpacing:1 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {visibleTrades.map((t, i) => (
-                  <tr key={i} className="hov" style={{ borderBottom:'1px solid #21262D35' }}>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:10, color:C.mu }}>{t.dt}</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>{t.sym}</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{t.entry.toLocaleString()}</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{t.exit.toLocaleString()}</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:12, fontWeight:600, color:t.pnl>=0?C.up:C.dn }}>{t.pnl>=0?'+':''}{t.pnl}%</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:11, color:t.rr>=2?C.acc:t.rr>=1.5?C.tx:C.dn }}>{t.rr}:1</td>
-                    <td style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:11, color:C.mu }}>{t.days}d</td>
-                    <td style={{ padding:'8px 16px' }}><Chip label={t.res} color={t.res==='WIN'?C.up:C.dn} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // ═══════════════════════ SECTOR HEATMAP ═══════════════════════
 function SectorHeatmap() {
