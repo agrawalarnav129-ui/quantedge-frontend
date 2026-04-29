@@ -87,40 +87,63 @@ const INDICATOR_GROUPS = [
   { g:'Price', items:[
     {l:'Close',v:'close',t:'price'},{l:'Open',v:'open',t:'price'},
     {l:'High',v:'high',t:'price'},{l:'Low',v:'low',t:'price'},
-    {l:'% Change',v:'pct_chg',t:'num'},{l:'% from 52W High',v:'pct52h',t:'num'},
-    {l:'% from 52W Low',v:'pct52l',t:'num'},
+    {l:'% Change (1d)',v:'pct_chg',t:'num'},{l:'% Change (5d)',v:'pct_chg5',t:'num'},
+    {l:'% Change (20d)',v:'pct_chg20',t:'num'},
+    {l:'% from 52W High',v:'pct52h',t:'num'},{l:'% from 52W Low',v:'pct52l',t:'num'},
+  ]},
+  { g:'N-Day High / Low', items:[
+    {l:'5-Day High',v:'high5d',t:'price'},{l:'5-Day Low',v:'low5d',t:'price'},
+    {l:'10-Day High',v:'high10d',t:'price'},{l:'10-Day Low',v:'low10d',t:'price'},
+    {l:'20-Day High',v:'high20d',t:'price'},{l:'20-Day Low',v:'low20d',t:'price'},
+    {l:'50-Day High',v:'high50d',t:'price'},{l:'50-Day Low',v:'low50d',t:'price'},
+    {l:'% from 20D High',v:'pct_high20d',t:'num'},{l:'% from 20D Low',v:'pct_low20d',t:'num'},
+    {l:'% from 50D High',v:'pct_high50d',t:'num'},{l:'% from 50D Low',v:'pct_low50d',t:'num'},
   ]},
   { g:'Moving Averages', items:[
-    {l:'EMA(9)',v:'ema9',t:'price'},{l:'EMA(20)',v:'ema20',t:'price'},
-    {l:'EMA(50)',v:'ema50',t:'price'},{l:'EMA(200)',v:'ema200',t:'price'},
+    {l:'EMA(5)',v:'ema5',t:'price'},{l:'EMA(9)',v:'ema9',t:'price'},
+    {l:'EMA(13)',v:'ema13',t:'price'},{l:'EMA(20)',v:'ema20',t:'price'},
+    {l:'EMA(26)',v:'ema26',t:'price'},{l:'EMA(50)',v:'ema50',t:'price'},
+    {l:'EMA(100)',v:'ema100',t:'price'},{l:'EMA(200)',v:'ema200',t:'price'},
+    {l:'SMA(5)',v:'sma5',t:'price'},{l:'SMA(10)',v:'sma10',t:'price'},
     {l:'SMA(20)',v:'sma20',t:'price'},{l:'SMA(50)',v:'sma50',t:'price'},
+    {l:'SMA(200)',v:'sma200',t:'price'},{l:'VWAP(20)',v:'vwap20',t:'price'},
   ]},
   { g:'Momentum', items:[
-    {l:'RSI(14)',v:'rsi14',t:'num'},{l:'RSI(9)',v:'rsi9',t:'num'},
+    {l:'RSI(7)',v:'rsi7',t:'num'},{l:'RSI(9)',v:'rsi9',t:'num'},
+    {l:'RSI(14)',v:'rsi14',t:'num'},{l:'RSI(21)',v:'rsi21',t:'num'},
     {l:'MACD Line',v:'macd',t:'num'},{l:'MACD Signal',v:'macd_sig',t:'num'},
     {l:'MACD Histogram',v:'macd_hist',t:'num'},
+    {l:'Stochastic %K',v:'stoch_k',t:'num'},{l:'Stochastic %D',v:'stoch_d',t:'num'},
+    {l:'CCI(20)',v:'cci20',t:'num'},{l:'Williams %R(14)',v:'willr14',t:'num'},
   ]},
   { g:'Trend', items:[
     {l:'ADX(14)',v:'adx14',t:'num'},{l:'+DI(14)',v:'di_plus',t:'num'},
     {l:'-DI(14)',v:'di_minus',t:'num'},
+    {l:'Supertrend Direction',v:'supertrend_dir',t:'num'},
   ]},
   { g:'Volatility', items:[
-    {l:'ATR(14)',v:'atr14',t:'price'},{l:'ATR % (14)',v:'atr_pct',t:'num'},
+    {l:'ATR(7)',v:'atr7',t:'price'},{l:'ATR(14)',v:'atr14',t:'price'},
+    {l:'ATR % (14)',v:'atr_pct',t:'num'},
     {l:'BB Upper',v:'bb_up',t:'price'},{l:'BB Lower',v:'bb_lo',t:'price'},
     {l:'BB Middle',v:'bb_mid',t:'price'},{l:'BB %B',v:'bb_pctb',t:'num'},
     {l:'BB Bandwidth',v:'bb_bw',t:'num'},
   ]},
   { g:'Volume', items:[
     {l:'Volume',v:'vol',t:'num'},{l:'Avg Volume (20)',v:'avg_vol20',t:'num'},
-    {l:'Volume Ratio (20)',v:'vol_ratio',t:'num'},{l:'OBV',v:'obv',t:'num'},
+    {l:'Volume Ratio (20)',v:'vol_ratio',t:'num'},
+    {l:'Volume Ratio (5)',v:'vol_ratio5',t:'num'},{l:'OBV',v:'obv',t:'num'},
   ]},
   { g:'Relative Strength', items:[
     {l:'RS vs NIFTY',v:'rs_nifty',t:'num'},{l:'RS vs NIFTY (5d Δ)',v:'rs_nifty5d',t:'num'},
-    {l:'RS vs Sector',v:'rs_sector',t:'num'},
+    {l:'RS vs NIFTY (20d Δ)',v:'rs_nifty20d',t:'num'},{l:'RS vs Sector',v:'rs_sector',t:'num'},
   ]},
   { g:'Patterns', items:[
-    {l:'Candle Pattern',v:'pattern',t:'pattern'},{l:'NR4',v:'nr4',t:'bool'},
-    {l:'NR7',v:'nr7',t:'bool'},{l:'Inside Bar',v:'inside_bar',t:'bool'},
+    {l:'NR4',v:'nr4',t:'bool'},{l:'NR7',v:'nr7',t:'bool'},
+    {l:'Inside Bar',v:'inside_bar',t:'bool'},{l:'Outside Bar',v:'outside_bar',t:'bool'},
+    {l:'Bullish Engulfing',v:'bullish_engulf',t:'bool'},
+    {l:'Bearish Engulfing',v:'bearish_engulf',t:'bool'},
+    {l:'Hammer',v:'hammer',t:'bool'},{l:'Shooting Star',v:'shooting_star',t:'bool'},
+    {l:'Doji',v:'doji',t:'bool'},
   ]},
 ];
 const ALL_IND = INDICATOR_GROUPS.flatMap(g => g.items);
@@ -131,7 +154,7 @@ const OPS = [
   {l:'=',v:'eq'},{l:'Crosses ↑',v:'x_above'},{l:'Crosses ↓',v:'x_below'},
 ];
 const PATTERNS = ['Inside Bar','NR4','NR7','Bullish Engulfing','Bearish Engulfing','Hammer','Shooting Star','Doji','Morning Star','Evening Star'];
-const UNIVERSES = ['NIFTY 50','NIFTY 100','NIFTY 200','NIFTY 500','ALL NSE'];
+const UNIVERSES = ['NIFTY 50','NIFTY 100','NIFTY 200','NIFTY 500','ALL NSE','FNO STOCKS','NIFTY BANK','NIFTY IT','NIFTY PHARMA','NIFTY AUTO','NIFTY FMCG','NIFTY METAL','NIFTY ENERGY'];
 const TIMEFRAMES = ['Daily','15 Minute','Daily + 15 Min'];
 const EXIT_RULES = ['After N Days','RSI Overbought (>70)','ATR Trailing Stop','EMA Cross Down'];
 
@@ -887,31 +910,221 @@ function ScannerView({ initScan, scans, setScans, setActiveId }) {
 
 // ═══════════════════════ BACKTEST VIEW ═══════════════════════
 function BacktestView({ scans }) {
-  const [scanId, setScanId] = useState(scans[0]?.id || 1);
-  const [from, setFrom] = useState('2024-01-01');
-  const [to, setTo] = useState('2025-04-01');
+  const [scanId,   setScanId]   = useState(scans[0]?.id || '');
+  const [from,     setFrom]     = useState('2024-01-01');
+  const [to,       setTo]       = useState(new Date().toISOString().slice(0,10));
   const [exitRule, setExitRule] = useState('After N Days');
   const [exitDays, setExitDays] = useState('8');
-  const [sl, setSl] = useState('3');
-  const [rrMin, setRrMin] = useState('2');
-  const [ran, setRan] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [filter, setFilter] = useState('ALL');
+  const [sl,       setSl]       = useState('3');
+  const [rrMin,    setRrMin]    = useState('2');
+  const [running,  setRunning]  = useState(false);
+  const [result,   setResult]   = useState(null);
+  const [error,    setError]    = useState('');
+  const [filter,   setFilter]   = useState('ALL');
 
   const runBT = async () => {
-    setRunning(true); setRan(false);
+    if (!scanId) { setError('Select a saved scan first.'); return; }
+    setRunning(true); setResult(null); setError('');
     try {
       const res = await apiFetch('/api/backtest/run', {
-        method:'POST',
-        body: JSON.stringify({ scan_id:scanId, from, to, exit_rule:exitRule, exit_days:exitDays, stop_loss:sl, min_rr:rrMin }),
+        method: 'POST',
+        body: JSON.stringify({
+          scan_id:   Number(scanId),
+          from, to,
+          exit_rule: exitRule,
+          exit_days: Number(exitDays),
+          stop_loss: Number(sl),
+          min_rr:    Number(rrMin),
+        }),
       });
-      if (!res.ok) throw new Error();
-    } catch { /* fall through to mock */ }
-    await new Promise(r => setTimeout(r, 2200));
-    setRunning(false); setRan(true);
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error || 'Backtest failed'); setRunning(false); return;
+      }
+      setResult(data);
+    } catch (e) {
+      setError(`Connection failed: ${e.message}`);
+    }
+    setRunning(false);
   };
 
-  const visibleTrades = filter === 'ALL' ? TRADES : TRADES.filter(t => t.res === filter);
+  const trades  = result?.trades || [];
+  const stats   = result?.stats  || {};
+  const equity  = result?.equity || [];
+  const visible = filter === 'ALL' ? trades : trades.filter(t => t.result === filter);
+  const finalVal = equity.length ? equity[equity.length-1].value : 100000;
+
+  const Inp = ({ val, setter, type='number', w='100%' }) => (
+    <input type={type} value={val} onChange={e => setter(e.target.value)}
+      style={{ ...inpSt, width:w, fontFamily:C.mo, fontSize:12 }} />
+  );
+
+  return (
+    <div style={{ padding:24, maxWidth:1100 }}>
+      <div style={{ marginBottom:22 }}>
+        <h1 style={{ fontFamily:C.fn, fontSize:20, fontWeight:800, color:C.tx }}>Strategy Backtester</h1>
+        <p style={{ fontFamily:C.mo, fontSize:10, color:C.mu, marginTop:4 }}>
+          Simulate any saved scanner on historical NSE data · Entry at next-day open · Realistic execution
+        </p>
+      </div>
+
+      {/* Config */}
+      <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:20, marginBottom:20 }}>
+        <Lbl>Configuration</Lbl>
+        <div className="bt-config-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginTop:10 }}>
+          <div>
+            <Lbl>Scanner to Test</Lbl>
+            <select value={scanId} onChange={e => setScanId(e.target.value)}
+              style={{ ...inpSt, cursor:'pointer', fontFamily:C.fn, fontSize:13 }}>
+              <option value="">— Select a saved scan —</option>
+              {scans.map(s => <option key={s.id} value={s.id}>{s.name} ({s.uni})</option>)}
+            </select>
+          </div>
+          <div><Lbl>From Date</Lbl><Inp val={from} setter={setFrom} type="date" /></div>
+          <div><Lbl>To Date</Lbl><Inp val={to} setter={setTo} type="date" /></div>
+          <div>
+            <Lbl>Exit Rule</Lbl>
+            <select value={exitRule} onChange={e => setExitRule(e.target.value)}
+              style={{ ...inpSt, cursor:'pointer', fontFamily:C.fn, fontSize:13 }}>
+              {EXIT_RULES.map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
+          <div><Lbl>Max Days in Trade</Lbl><Inp val={exitDays} setter={setExitDays} /></div>
+          <div><Lbl>Stop Loss (%)</Lbl><Inp val={sl} setter={setSl} /></div>
+        </div>
+        <div style={{ marginTop:18, display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
+          <button onClick={runBT} disabled={running} className="btn"
+            style={{ padding:'9px 28px', background:running?`${C.acc}25`:C.acc, border:'none',
+              borderRadius:6, cursor:'pointer', fontFamily:C.fn, fontSize:13, fontWeight:800,
+              color:running?C.acc:'#000' }}>
+            {running ? '◌ Running Backtest...' : '▶ Run Backtest'}
+          </button>
+          {result && !running && (
+            <span style={{ fontFamily:C.mo, fontSize:10, color:C.up }}>
+              ✓ Complete — {trades.length} trades · ₹{finalVal.toLocaleString('en-IN')}
+            </span>
+          )}
+          {error && <span style={{ fontFamily:C.mo, fontSize:10, color:C.dn }}>✕ {error}</span>}
+        </div>
+        {running && (
+          <div style={{ marginTop:14, fontFamily:C.mo, fontSize:9, color:C.mu }}>
+            Fetching 2 years of OHLCV data and simulating bar-by-bar... this takes 2–5 minutes for large universes.
+          </div>
+        )}
+      </div>
+
+      {result && (
+        <>
+          {/* Stats */}
+          <div className="bt-stats-grid" style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:12, marginBottom:20 }}>
+            {[
+              {l:'Win Rate',       v:`${stats.win_rate}%`,         cl: stats.win_rate > 50 ? C.up : C.dn},
+              {l:'Avg R:R',        v: stats.avg_rr,                cl: stats.avg_rr >= 2 ? C.acc : C.wa},
+              {l:'Expectancy',     v:`${stats.expectancy}%`,       cl: stats.expectancy > 0 ? C.acc : C.dn},
+              {l:'Profit Factor',  v: stats.profit_factor,         cl: stats.profit_factor >= 1.5 ? C.up : C.wa},
+              {l:'Max Drawdown',   v:`${stats.max_drawdown}%`,     cl: C.dn},
+              {l:'Sharpe Ratio',   v: stats.sharpe,                cl: stats.sharpe >= 1 ? C.up : C.mu},
+              {l:'Total Trades',   v: stats.total_trades,          cl: C.tx},
+              {l:'Wins / Losses',  v:`${stats.wins} / ${stats.losses}`, cl: C.tx},
+              {l:'Total Return',   v:`${stats.total_return}%`,     cl: stats.total_return > 0 ? C.up : C.dn},
+              {l:'Final Capital',  v:`₹${Number(stats.final_capital).toLocaleString('en-IN')}`, cl: stats.total_return > 0 ? C.up : C.dn},
+              {l:'Total P&L',      v:`₹${Number(stats.total_pnl_rs||0).toLocaleString('en-IN')}`, cl: (stats.total_pnl_rs||0) > 0 ? C.up : C.dn},
+              {l:'Avg Win / Loss', v:`${stats.avg_win_pct}% / ${stats.avg_loss_pct}%`, cl: C.tx},
+            ].map((s, i) => (
+              <div key={i} style={{ background:C.sf, border:'1px solid #21262D', borderRadius:8, padding:'12px 14px' }}>
+                <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu, letterSpacing:1, textTransform:'uppercase', marginBottom:6 }}>{s.l}</div>
+                <div style={{ fontFamily:C.mo, fontSize:18, fontWeight:600, color:s.cl }}>{s.v}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Equity Curve */}
+          {equity.length > 1 && (
+            <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, padding:20, marginBottom:20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+                <span style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>Equity Curve</span>
+                <div style={{ display:'flex', gap:20 }}>
+                  <span style={{ fontFamily:C.mo, fontSize:10, color:C.mu }}>Start: <span style={{ color:C.tx }}>₹1,00,000</span></span>
+                  <span style={{ fontFamily:C.mo, fontSize:10, color:C.mu }}>End: <span style={{ color:stats.total_return>0?C.up:C.dn }}>₹{Number(finalVal).toLocaleString('en-IN')}</span></span>
+                  <span style={{ fontFamily:C.mo, fontSize:10, color:stats.total_return>0?C.up:C.dn }}>{stats.total_return>0?'+':''}{stats.total_return}%</span>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={equity} margin={{ top:5, right:5, bottom:0, left:10 }}>
+                  <defs>
+                    <linearGradient id="eq_grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={C.acc} stopOpacity={0.2} />
+                      <stop offset="95%" stopColor={C.acc} stopOpacity={0}   />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#21262D" />
+                  <XAxis dataKey="date" tick={{ fontFamily:C.mo, fontSize:8, fill:C.mu }} tickLine={false} axisLine={false} interval={Math.floor(equity.length/8)} />
+                  <YAxis tick={{ fontFamily:C.mo, fontSize:8, fill:C.mu }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
+                  <Tooltip content={<EqTooltip />} />
+                  <ReferenceLine y={100000} stroke="#21262D" strokeDasharray="4 4" />
+                  <Area type="monotone" dataKey="value" stroke={C.acc} strokeWidth={2} fill="url(#eq_grad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Trade Log */}
+          <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, overflow:'hidden' }}>
+            <div style={{ padding:'14px 18px', borderBottom:'1px solid #21262D', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+              <span style={{ fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>
+                Trade Log <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu, fontWeight:400 }}>{stats.wins}W / {stats.losses}L</span>
+              </span>
+              <div style={{ display:'flex', gap:6 }}>
+                {['ALL','WIN','LOSS'].map(f => (
+                  <button key={f} onClick={() => setFilter(f)} className="btn"
+                    style={{ padding:'3px 10px', background:filter===f?`${f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc}18`:'transparent',
+                      border:`1px solid ${filter===f?f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc:'#21262D'}`,
+                      borderRadius:4, cursor:'pointer', fontFamily:C.mo, fontSize:9,
+                      color:filter===f?f==='WIN'?C.up:f==='LOSS'?C.dn:C.acc:C.mu }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ overflowX:'auto' }}>
+              <table style={{ width:'100%', borderCollapse:'collapse', minWidth:700 }}>
+                <thead>
+                  <tr style={{ borderBottom:'1px solid #21262D' }}>
+                    {['Signal','Entry','Symbol','Entry ₹','Exit ₹','SL ₹','P&L %','P&L ₹','R:R','Days','Exit','Result'].map(h => (
+                      <th key={h} style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:8, color:C.mu, textAlign:'left', fontWeight:400, letterSpacing:1, whiteSpace:'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {visible.map((t, i) => (
+                    <tr key={i} className="hov" style={{ borderBottom:'1px solid #21262D35' }}>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:10, color:C.mu, whiteSpace:'nowrap' }}>{t.date}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:10, color:C.mu, whiteSpace:'nowrap' }}>{t.entry_date}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>{t.symbol}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{Number(t.entry).toLocaleString('en-IN')}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{Number(t.exit).toLocaleString('en-IN')}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:C.dn }}>₹{Number(t.sl).toLocaleString('en-IN')}</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:12, fontWeight:600, color:t.pnl_pct>=0?C.up:C.dn, whiteSpace:'nowrap' }}>
+                        {t.pnl_pct>=0?'+':''}{t.pnl_pct}%
+                      </td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:t.pnl_rs>=0?C.up:C.dn, whiteSpace:'nowrap' }}>
+                        {t.pnl_rs>=0?'+':''}₹{Number(Math.abs(t.pnl_rs)).toLocaleString('en-IN')}
+                      </td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:t.rr>=2?C.acc:t.rr>=1?C.tx:C.dn }}>{t.rr}:1</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:11, color:C.mu }}>{t.days}d</td>
+                      <td style={{ padding:'8px 12px', fontFamily:C.mo, fontSize:9, color:C.mu }}>{t.exit_reason}</td>
+                      <td style={{ padding:'8px 12px' }}><Chip label={t.result} color={t.result==='WIN'?C.up:C.dn} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
   const Inp = ({ val, setter, type='number', w='100%' }) => (
     <input type={type} value={val} onChange={e => setter(e.target.value)}
@@ -1048,7 +1261,154 @@ function BacktestView({ scans }) {
   );
 }
 
-// ═══════════════════════ LOGIN GATE ═══════════════════════
+// ═══════════════════════ SECTOR HEATMAP ═══════════════════════
+function SectorHeatmap() {
+  const [data,    setData]    = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [period,  setPeriod]  = useState('3mo');
+  const [error,   setError]   = useState('');
+
+  const load = async (p) => {
+    setLoading(true); setError('');
+    try {
+      const r = await apiFetch(`/api/sector/heatmap?period=${p}`);
+      if (r.ok) { const d = await r.json(); setData(d); }
+      else setError('Failed to fetch sector data');
+    } catch (e) { setError(e.message); }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(period); }, [period]);
+
+  const getColor = (rs) => {
+    if (rs == null) return C.sf;
+    if (rs > 110)  return '#1a4a2e';
+    if (rs > 105)  return '#1a3d24';
+    if (rs > 100)  return '#162f1c';
+    if (rs > 95)   return '#3d1c1c';
+    return '#4a1a1a';
+  };
+  const getTextColor = (rs) => {
+    if (rs == null) return C.mu;
+    if (rs > 105)  return C.up;
+    if (rs > 100)  return '#7ec896';
+    if (rs > 95)   return '#e08080';
+    return C.dn;
+  };
+
+  return (
+    <div style={{ padding:24, maxWidth:1100 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:22 }}>
+        <div>
+          <h1 style={{ fontFamily:C.fn, fontSize:20, fontWeight:800, color:C.tx }}>Sector RS Heatmap</h1>
+          <p style={{ fontFamily:C.mo, fontSize:10, color:C.mu, marginTop:4 }}>
+            Sector Relative Strength vs NIFTY 50 — identify rotation and leadership
+          </p>
+        </div>
+        <div style={{ display:'flex', gap:6 }}>
+          {['1mo','3mo','6mo','1y'].map(p => (
+            <button key={p} onClick={() => setPeriod(p)} className="btn"
+              style={{ padding:'5px 12px', background:period===p?`${C.acc}18`:'transparent',
+                border:`1px solid ${period===p?C.acc:'#21262D'}`, borderRadius:5,
+                cursor:'pointer', fontFamily:C.mo, fontSize:10, color:period===p?C.acc:C.mu }}>
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading && (
+        <div style={{ padding:40, textAlign:'center' }}>
+          <div style={{ fontFamily:C.mo, fontSize:11, color:C.acc, marginBottom:8 }}>◌ Fetching sector data...</div>
+          <div style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>Computing RS for each sector vs NIFTY</div>
+        </div>
+      )}
+
+      {error && (
+        <div style={{ padding:20, background:'#F8514912', border:'1px solid #F8514930', borderRadius:8, fontFamily:C.mo, fontSize:11, color:C.dn }}>{error}</div>
+      )}
+
+      {data && !loading && (
+        <>
+          {/* RS Tiles */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:12, marginBottom:24 }}>
+            {data.sectors.map((s, i) => (
+              <div key={i} style={{ background: getColor(s.rs_now), border:`1px solid ${s.rs_now > 100 ? '#2a5a3a' : '#5a2a2a'}`, borderRadius:10, padding:18 }}>
+                <div style={{ fontFamily:C.fn, fontSize:12, fontWeight:700, color:C.tx, marginBottom:6 }}>{s.sector.replace('NIFTY ','')}</div>
+                <div style={{ fontFamily:C.mo, fontSize:28, fontWeight:700, color:getTextColor(s.rs_now), lineHeight:1, marginBottom:8 }}>
+                  {s.rs_now != null ? s.rs_now.toFixed(1) : '—'}
+                </div>
+                <div style={{ display:'flex', gap:10, marginBottom:8 }}>
+                  <div>
+                    <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu }}>1W RS Δ</div>
+                    <div style={{ fontFamily:C.mo, fontSize:11, color:s.rs_1w>0?C.up:C.dn }}>{s.rs_1w>0?'+':''}{s.rs_1w?.toFixed(1)}%</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu }}>1M RS Δ</div>
+                    <div style={{ fontFamily:C.mo, fontSize:11, color:s.rs_1m>0?C.up:C.dn }}>{s.rs_1m>0?'+':''}{s.rs_1m?.toFixed(1)}%</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu }}>1D Chg</div>
+                    <div style={{ fontFamily:C.mo, fontSize:11, color:s.chg_1d>0?C.up:C.dn }}>{s.chg_1d>0?'+':''}{s.chg_1d?.toFixed(2)}%</div>
+                  </div>
+                </div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <span style={{ fontFamily:C.mo, fontSize:8, letterSpacing:0.5,
+                    color: s.trend==='UP'?C.up : s.trend==='DOWN'?C.dn : C.wa,
+                    background: s.trend==='UP'?`${C.up}15` : s.trend==='DOWN'?`${C.dn}15` : `${C.wa}15`,
+                    padding:'2px 6px', borderRadius:3 }}>
+                    {s.trend==='UP'?'↑ LEADING':'DOWN'===s.trend?'↓ LAGGING':'→ MIXED'}
+                  </span>
+                  <span style={{ fontFamily:C.mo, fontSize:9, color:C.mu }}>
+                    ₹{s.close?.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* RS Table */}
+          <div style={{ background:C.sf, border:'1px solid #21262D', borderRadius:10, overflow:'hidden' }}>
+            <div style={{ padding:'12px 18px', borderBottom:'1px solid #21262D', fontFamily:C.fn, fontSize:13, fontWeight:700, color:C.tx }}>
+              Sector Rankings — Sorted by RS vs NIFTY
+            </div>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom:'1px solid #21262D' }}>
+                  {['Rank','Sector','RS Score','1W Δ','1M Δ','1D Chg','Close','Trend'].map(h => (
+                    <th key={h} style={{ padding:'8px 16px', fontFamily:C.mo, fontSize:8, color:C.mu, textAlign:'left', fontWeight:400, letterSpacing:1 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.sectors.map((s, i) => (
+                  <tr key={i} className="hov" style={{ borderBottom:'1px solid #21262D35' }}>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:14, fontWeight:700, color:i<3?C.acc:C.mu }}>#{i+1}</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.fn, fontSize:13, fontWeight:600, color:C.tx }}>{s.sector}</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:14, fontWeight:700, color:getTextColor(s.rs_now) }}>{s.rs_now?.toFixed(2)}</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:11, color:s.rs_1w>0?C.up:C.dn }}>{s.rs_1w>0?'+':''}{s.rs_1w?.toFixed(1)}%</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:11, color:s.rs_1m>0?C.up:C.dn }}>{s.rs_1m>0?'+':''}{s.rs_1m?.toFixed(1)}%</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:11, color:s.chg_1d>0?C.up:C.dn }}>{s.chg_1d>0?'+':''}{s.chg_1d?.toFixed(2)}%</td>
+                    <td style={{ padding:'10px 16px', fontFamily:C.mo, fontSize:11, color:C.tx }}>₹{s.close?.toLocaleString('en-IN')}</td>
+                    <td style={{ padding:'10px 16px' }}>
+                      <Chip label={s.trend==='UP'?'LEADING':s.trend==='DOWN'?'LAGGING':'MIXED'}
+                        color={s.trend==='UP'?C.up:s.trend==='DOWN'?C.dn:C.wa} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ fontFamily:C.mo, fontSize:8, color:C.mu, marginTop:12, textAlign:'right' }}>
+            RS > 100 = outperforming NIFTY · RS < 100 = underperforming · Updated: {data.timestamp?.slice(0,16).replace('T',' ')}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+
 // Add / remove users here. Passwords are hashed in prod via backend.
 // For now: simple client-side check — good enough for private tools.
 const LOGIN_CSS = `
@@ -1159,6 +1519,7 @@ export default function App() {
     {id:'dashboard', icon:'▪', label:'Dashboard'},
     {id:'scanner',   icon:'◈', label:'Scanner'},
     {id:'backtest',  icon:'◉', label:'Backtest'},
+    {id:'sectors',   icon:'◧', label:'Sectors'},
   ];
 
   return (
@@ -1171,6 +1532,7 @@ export default function App() {
           {tab === 'dashboard' && <Dashboard scans={scans} onSelect={handleSelect} onNew={handleNew} setTab={setTab} />}
           {tab === 'scanner'   && <ScannerView key={activeScan?.id || 'new'} initScan={activeScan} scans={scans} setScans={setScans} setActiveId={setActiveId} />}
           {tab === 'backtest'  && <BacktestView scans={scans} />}
+          {tab === 'sectors'   && <SectorHeatmap />}
         </main>
       </div>
 
