@@ -174,53 +174,6 @@ const STOCKS = [
   {s:'CAMS',n:'CAMS',p:3892,c:2.1,rsi:62.7,adx:24.3,vr:1.48,rs:1.04,bw:0.13,sec:'Financial',setup:'Continuation'},
 ];
 
-const INIT_SCANS = [
-  {
-    id:1, name:'Momentum Breakout', color:'#00D68F',
-    desc:'Price above EMA20/50, RSI > 60, Volume surge, ADX > 25',
-    uni:'NIFTY 200', tf:'Daily', lastRun:'27 Apr, 09:15', cnt:14,
-    conds:[
-      {id:1,ind:'close',op:'gt',vt:'ind',val:'',vi:'ema20',lg:'AND'},
-      {id:2,ind:'close',op:'gt',vt:'ind',val:'',vi:'ema50',lg:'AND'},
-      {id:3,ind:'rsi14',op:'gt',vt:'num',val:'60',vi:null,lg:'AND'},
-      {id:4,ind:'vol_ratio',op:'gt',vt:'num',val:'1.5',vi:null,lg:'AND'},
-      {id:5,ind:'adx14',op:'gt',vt:'num',val:'25',vi:null,lg:'AND'},
-    ]
-  },
-  {
-    id:2, name:'RS Leaders', color:'#A371F7',
-    desc:'Outperforming NIFTY with rising relative strength',
-    uni:'NIFTY 100', tf:'Daily', lastRun:'27 Apr, 09:15', cnt:22,
-    conds:[
-      {id:1,ind:'rs_nifty',op:'gt',vt:'num',val:'1.05',vi:null,lg:'AND'},
-      {id:2,ind:'rs_nifty5d',op:'gt',vt:'num',val:'0',vi:null,lg:'AND'},
-      {id:3,ind:'rsi14',op:'gt',vt:'num',val:'55',vi:null,lg:'AND'},
-      {id:4,ind:'adx14',op:'gt',vt:'num',val:'20',vi:null,lg:'AND'},
-    ]
-  },
-  {
-    id:3, name:'BB Squeeze Breakout', color:'#D29922',
-    desc:'Low volatility squeeze + price above BB Upper + volume',
-    uni:'NIFTY 200', tf:'Daily', lastRun:'26 Apr, 15:30', cnt:6,
-    conds:[
-      {id:1,ind:'bb_bw',op:'lt',vt:'num',val:'0.1',vi:null,lg:'AND'},
-      {id:2,ind:'close',op:'gt',vt:'ind',val:'',vi:'bb_up',lg:'AND'},
-      {id:3,ind:'vol_ratio',op:'gt',vt:'num',val:'2.0',vi:null,lg:'AND'},
-    ]
-  },
-  {
-    id:4, name:'NR7 + Strong Trend', color:'#F85149',
-    desc:'Narrow Range 7-bar with ADX > 25 and RSI > 50',
-    uni:'NIFTY 500', tf:'Daily', lastRun:'26 Apr, 15:30', cnt:9,
-    conds:[
-      {id:1,ind:'nr7',op:'eq',vt:'bool',val:'true',vi:null,lg:'AND'},
-      {id:2,ind:'adx14',op:'gt',vt:'num',val:'25',vi:null,lg:'AND'},
-      {id:3,ind:'rsi14',op:'gt',vt:'num',val:'50',vi:null,lg:'AND'},
-    ]
-  },
-];
-
-
 // ═══════════════════════ CONDITION ID COUNTER ═══════════════════════
 let _id = 500;
 const mkCond = () => ({ id: _id++, ind:'rsi14', op:'gt', vt:'num', val:'60', vi:'ema20', lg:'AND' });
@@ -330,8 +283,9 @@ function Header({ onLogout }) {
 function Sidebar({ scans, activeId, onSelect, onNew, tab, setTab }) {
   const nav = [
     { id:'dashboard', icon:'▪', label:'Dashboard' },
-    { id:'scanner', icon:'◈', label:'Scanner Builder' },
-    { id:'backtest', icon:'◉', label:'Backtester' },
+    { id:'scanner',   icon:'◈', label:'Scanner Builder' },
+    { id:'backtest',  icon:'◉', label:'Backtester' },
+    { id:'sectors',   icon:'◧', label:'Sector Heatmap' },
   ];
   return (
     <div className="desktop-sidebar" style={{ width:210, background:C.sf, borderRight:'1px solid #21262D', height:'calc(100vh - 50px)', display:'flex', flexDirection:'column', flexShrink:0, overflowY:'auto', position:'sticky', top:50 }}>
@@ -677,10 +631,31 @@ function ScannerView({ initScan, scans, setScans, setActiveId }) {
     setLoading(false);
   };
 
-  const save = () => {
-    const sc = { id:initScan?.id || Date.now(), name, desc, uni, tf, conds, color, lastRun:'Just now', cnt:results?.length || initScan?.cnt || 0 };
-    setScans(prev => isNew ? [...prev, sc] : prev.map(s => s.id===sc.id ? sc : s));
-    setActiveId(sc.id); setSaved(true); setTimeout(() => setSaved(false), 2500);
+  const save = async () => {
+    const payload = {
+      name, desc,
+      uni, tf, color,
+      conditions: conds,
+    };
+    try {
+      let resp, data;
+      if (isNew) {
+        resp = await apiFetch('/api/scans', { method:'POST', body: JSON.stringify(payload) });
+        data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'save failed');
+        const newSc = { id: data.id, name, desc, uni, tf, conds, color, lastRun:'Just now', cnt: results?.length || 0 };
+        setScans(prev => [...prev, newSc]);
+        setActiveId(data.id);
+      } else {
+        resp = await apiFetch(`/api/scans/${initScan.id}`, { method:'PUT', body: JSON.stringify(payload) });
+        if (!resp.ok) { data = await resp.json(); throw new Error(data.error || 'update failed'); }
+        const upSc = { ...initScan, name, desc, uni, tf, conds, color, lastRun:'Just now', cnt: results?.length || initScan?.cnt || 0 };
+        setScans(prev => prev.map(s => s.id === initScan.id ? upSc : s));
+      }
+      setSaved(true); setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      alert(`Could not save scan: ${e.message}\nMake sure the backend is running.`);
+    }
   };
 
   const applyTemplate = (t) => {
@@ -872,7 +847,7 @@ function ScannerView({ initScan, scans, setScans, setActiveId }) {
 
 // ═══════════════════════ BACKTEST VIEW ═══════════════════════
 function BacktestView({ scans }) {
-  const [scanId,   setScanId]   = useState(scans[0]?.id || '');
+  const [scanId,   setScanId]   = useState('');
   const [from,     setFrom]     = useState('2024-01-01');
   const [to,       setTo]       = useState(new Date().toISOString().slice(0,10));
   const [exitRule, setExitRule] = useState('After N Days');
@@ -883,6 +858,11 @@ function BacktestView({ scans }) {
   const [result,   setResult]   = useState(null);
   const [error,    setError]    = useState('');
   const [filter,   setFilter]   = useState('ALL');
+
+  // Auto-pick first available scan once scans are loaded from backend
+  useEffect(() => {
+    if (!scanId && scans.length > 0) setScanId(String(scans[0].id));
+  }, [scans, scanId]);
 
   const runBT = async () => {
     if (!scanId) { setError('Select a saved scan first.'); return; }
@@ -1331,16 +1311,83 @@ export default function App() {
   const saved   = sessionStorage.getItem('qe_auth');
   const [authed, setAuthed] = useState(!!saved);
   const [tab, setTab] = useState('dashboard');
-  const [scans, setScans] = useState(INIT_SCANS);
+  const [scans, setScans] = useState([]);
+  const [scansLoaded, setScansLoaded] = useState(false);
   const [activeScan, setActiveScan] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const isMobile = useIsMobile();
+
+  // Load saved scans from backend on mount
+  useEffect(() => {
+    if (!authed) return;
+    const load = async () => {
+      try {
+        const r = await apiFetch('/api/scans');
+        if (r.ok) {
+          const rows = await r.json();
+          // Backend returns rows with `conds` as JSON string and `uni`/`tf` columns
+          const parsed = rows.map(row => ({
+            id:      row.id,
+            name:    row.name,
+            desc:    row.desc || '',
+            uni:     row.uni,
+            tf:      row.tf,
+            color:   row.color || '#00D68F',
+            conds:   typeof row.conds === 'string' ? JSON.parse(row.conds || '[]') : (row.conds || []),
+            lastRun: row.last_run || '—',
+            cnt:     row.cnt || 0,
+          }));
+          // If empty, seed with starter templates so the user has something to play with
+          if (parsed.length === 0) {
+            const starters = [
+              { name:'Momentum Breakout', color:'#00D68F', desc:'Price > EMA20/50, RSI > 60, Vol > 1.5x, ADX > 25', uni:'NIFTY 200', tf:'Daily',
+                conditions:[
+                  {ind:'close',op:'gt',vt:'ind',val:'',vi:'ema20',lg:'AND'},
+                  {ind:'close',op:'gt',vt:'ind',val:'',vi:'ema50',lg:'AND'},
+                  {ind:'rsi14',op:'gt',vt:'num',val:'60',vi:null,lg:'AND'},
+                  {ind:'vol_ratio',op:'gt',vt:'num',val:'1.5',vi:null,lg:'AND'},
+                  {ind:'adx14',op:'gt',vt:'num',val:'25',vi:null,lg:'AND'},
+                ]},
+              { name:'RS Leaders', color:'#A371F7', desc:'Outperforming NIFTY with rising RS', uni:'NIFTY 100', tf:'Daily',
+                conditions:[
+                  {ind:'rs_nifty',op:'gt',vt:'num',val:'1.05',vi:null,lg:'AND'},
+                  {ind:'rs_nifty5d',op:'gt',vt:'num',val:'0',vi:null,lg:'AND'},
+                  {ind:'rsi14',op:'gt',vt:'num',val:'55',vi:null,lg:'AND'},
+                ]},
+            ];
+            const created = [];
+            for (const s of starters) {
+              try {
+                const cr = await apiFetch('/api/scans', { method:'POST', body: JSON.stringify(s) });
+                const d  = await cr.json();
+                if (cr.ok) created.push({ id:d.id, ...s, conds:s.conditions, cnt:0, lastRun:'—' });
+              } catch {}
+            }
+            setScans(created);
+          } else {
+            setScans(parsed);
+          }
+        }
+      } catch (e) {
+        console.error('Could not load scans from backend:', e);
+      }
+      setScansLoaded(true);
+    };
+    load();
+  }, [authed]);
 
   if (!authed) return <LoginGate onLogin={() => setAuthed(true)} />;
 
   const handleNew    = () => { setActiveScan(null); setActiveId(null); setTab('scanner'); };
   const handleSelect = sc => { setActiveScan(sc); setActiveId(sc.id); };
   const handleLogout = () => { sessionStorage.removeItem('qe_auth'); setAuthed(false); };
+  const handleDelete = async (id) => {
+    try {
+      await apiFetch(`/api/scans/${id}`, { method:'DELETE' });
+      setScans(prev => prev.filter(s => s.id !== id));
+      if (activeId === id) { setActiveId(null); setActiveScan(null); }
+    } catch (e) { alert('Could not delete: ' + e.message); }
+  };
 
   const NAV = [
     {id:'dashboard', icon:'▪', label:'Dashboard'},
